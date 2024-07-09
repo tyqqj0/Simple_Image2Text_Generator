@@ -52,6 +52,8 @@ def load_data_dicts(data_path):
             # 如果传入的是 JSON 文件路径,读取 JSON 文件作为数据字典
             with open(data_path, "r") as f:
                 data_dicts = json.load(f)
+                if 'train' in data_dicts.keys():
+                    data_dicts = data_dicts['train']
         else:
             # 如果传入的是文件夹路径,自动搜索所有的图像和标签文件
             data_path_image = os.path.join(data_path, "image")
@@ -153,8 +155,9 @@ def create_dataset(data_dir, num_crops_per_image, output_dirs, max_num=-1):
 
 
 # 使用示例
-data_dir = "D:/Data/brains/train/"
+# data_dir = "D:/Data/brains/train/"
+data_dir = "D:/gkw/data/data_json/vessel.json"
 output_dir = ["D:/Data/brains/train/image_crops", "D:/Data/brains/train/label_crops"]
-num_crops_per_image = 10
+num_crops_per_image = 1
 
 create_dataset(data_dir, num_crops_per_image, output_dir)

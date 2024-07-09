@@ -6,7 +6,7 @@
 # @Aim
 import os
 
-from render import render_numpy
+from render_volume.render import render_numpy
 from agent.Agent import ImageTextGenerator
 
 
@@ -73,5 +73,12 @@ def main():
     save_texts(texts, 'texts')
 
 
+
+
+
+
 if __name__ == '__main__':
     main()
+
+
+

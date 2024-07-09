@@ -1,0 +1,83 @@
+# -*- CODING: UTF-8 -*-
+# @time 2024/7/9 下午8:14
+# @Author tyqqj
+# @File generate.py
+# @
+# @Aim 
+
+import numpy as np
+import torch
+from torch.utils import data
+from torch import nn
+
+from render_volume.render import render_numpy
+from agent.Agent import ImageTextGenerator
+
+# import os
+# import matplotlib.pyplot as plt
+# import pandas as pd
+# import torchvision
+
+import os
+
+
+def get_mha_names(path: str) -> list:
+    # 获取文件夹下所有文件名称
+    files = os.listdir(path)
+    # 获取所有mha文件名称
+    mha_names = []
+    for file in files:
+        if file.endswith('.mha'):
+            mha_names.append(file)
+    return mha_names
+
+
+def generate_image_text(files, target_dir, skip_existing=True):
+    generator = ImageTextGenerator()
+    for i, file in enumerate(files):
+        if i > 3:
+            break
+        # 名称取.../*.mha
+        file_name = file.split('/')[-1]
+        # 去掉后缀
+        file_name = file_name.split('.')[0]
+
+        # 检查目标文件夹中是否已经存在对应的文本文件
+        target_file = os.path.join(target_dir, f"{file_name}.txt")
+        if os.path.exists(target_file) and skip_existing:
+            print(f"Skipping {file_name} as the text file already exists.")
+            continue
+        elif os.path.exists(target_file):
+            print(f"Overwriting existing file: {file_name}.")
+
+        print(f"Processing: {file}")
+        # 生成图像
+        img = render_numpy(file)
+        # 生成文本
+        text = generator.generate_text_from_numpy_array(img)
+        print(text)
+
+        # 将生成的文本保存到目标文件夹中
+        with open(target_file, 'w') as f:
+            f.write(text)
+
+
+def main():
+    # 图像文件夹路径
+    image_dir = 'D:/Data/brains/train/image_crops'
+    # 目标文件夹路径
+    target_dir = 'generated_texts'
+
+    # 创建目标文件夹(如果不存在)
+    os.makedirs(target_dir, exist_ok=True)
+
+    # 获取数据名称列表
+    files = get_mha_names(path=image_dir)
+    print(files)
+
+    # 生成图像文本到目标文件夹
+    generate_image_text(files, target_dir)
+
+
+if __name__ == '__main__':
+    main()

@@ -5,6 +5,7 @@
 # @
 # @Aim
 import json
+import os
 import time
 
 import numpy as np
@@ -29,8 +30,10 @@ import oss2
 # tbucket_name = ''
 # tendpoint = 'oss-cn-beijing.aliyuncs.com'
 
-
-oss_dict = json.load(open("oss_key.json"))
+# 获取当前的文件位置
+# print(os.path.abspath(__file__))
+file_path = os.path.abspath(__file__)
+oss_dict = json.load(open(os.path.join(os.path.dirname(file_path), "oss_key.json"), "r"))
 taccess_key_id = oss_dict["taccess_key_id"]
 taccess_key_secret = oss_dict["taccess_key_secret"]
 tbucket_name = oss_dict["tbucket_name"]
@@ -138,7 +141,7 @@ message = [
                         "标注质量:\n"
                         "图中主干血管及一级分支的勾画比较完整和准确,但二级以下的细小分支血管标注略有缺失,局部血管末梢连续性稍差。血管边缘的标注也不甚平滑。总的来说,关键结构标注到位,但在细节刻画上有进一步优化的空间。\n"
                         "需要关注的部分:\n"
-                        "虽然血管主干和分支总体形态正常,但局部可见一些分支血管管径不均、局部变细的现象(见图中黄色箭头所指)。这些改变提示可能存在血管狭窄或闭塞,但从目前图像质量尚难以定论,建议行进一步检查明确。此外,有1-2支细小分支血管末梢出现中断(见红色箭头所指),但由于分支级数较高,定位比较困难,还需结合更多临床信息判断其意义。\n"
+                        "虽然血管主干和分支总体形态正常,但局部可见一些分支血管管径不均、局部变细的现象。这些改变提示可能存在血管狭窄或闭塞,但从目前图像质量尚难以定论,建议行进一步检查明确。此外,有1-2支细小分支血管末梢出现中断,但由于分支级数较高,定位比较困难,还需结合更多临床信息判断其意义。\n"
                         "综上,该血管造影图像展示了较为典型的血管解剖,标注质量尚可,但局部血管改变值得关注,建议联系病史、体征做进一步定位和评估,以明确病变性质、程度和范围。"
 
             }
@@ -149,7 +152,7 @@ message = [
         "content": [
             {
                 "type": "text",
-                "text": "总体来说你分析的不错,大致学会了分析这些脑血管图像的方法，但是刚刚这张图中并没有任何箭头，请注意在后面的分析中不要编造内容,并严格按照格式回答，尽可能使用刚刚提供的关键词 下面看看按照上面的要求分析一下这张图"
+                "text": "总体来说你分析的不错,大致学会了分析这些脑血管图像的方法，请注意在后面的分析中不要编造内容,并严格按照格式回答，尽可能使用刚刚提供的关键词 下面看看按照上面的要求分析一下这张图"
             },
             {
                 "type": "image_url",

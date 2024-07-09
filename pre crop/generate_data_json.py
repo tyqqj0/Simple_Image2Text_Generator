@@ -11,13 +11,9 @@ import os
 
 
 def get_a_set(data_dir):
-    # global data_dir
-    # 数据集的目录
-
     # 图像和标签的目录
-    images_dir = os.path.join(data_dir["image"])
-    labels_dir = os.path.join(data_dir["label"])
-    # 如果有最大数量限制，则获取最大数量
+    images_dir = data_dir["image"]
+    labels_dir = data_dir["label"]
 
     print(images_dir, labels_dir)
     # 获取所有图像和标签文件的路径
@@ -29,7 +25,6 @@ def get_a_set(data_dir):
          "label": os.path.join(labels_dir, lbl).replace('\\', '/')}
         for img, lbl in zip(image_files, label_files)
     ]
-    # if "max_amount" in data_dir.keys():
 
     if "max_amount" in data_dir.keys():
         max_amount = data_dir["max_amount"]
@@ -60,63 +55,43 @@ def get_a_set(data_dir):
         for i, label in zip(shuffle_indices, labels_to_shuffle):
             datalist[i]['label'] = label
 
-    # 将数据列表保存为 JSON 文件
-    # with open("datalist.json", "w") as f:
-    # json_set = json.dumps(datalist, indent=4)
     return datalist
 
 
 def get_dsets(dirstt):
-    # all_lists = {"train": get_a_set(train_dir), "val": get_a_set(val_dir)}
-    # 遍历内容添加键值对
     all_lists = {}
     for key, value in dirstt.items():
         all_lists[key] = get_a_set(value)
-    # all_lists = json.dumps(all_lists)
     print(json.dumps(all_lists, indent=4))
     return all_lists
 
 
+def save_json(all_lists, target_file, target_dir=None):
+    if target_dir is None:
+        target_dir = os.path.dirname(os.path.abspath(__file__))
+    os.makedirs(target_dir, exist_ok=True)
+    target_path = os.path.join(target_dir, target_file)
+    with open(target_path, "w") as dlj:
+        json.dump(all_lists, dlj, indent=4)
+    print(f"JSON file saved at: {target_path}")
+
+
 if __name__ == "__main__":
+    root = "D:\\Data\\brains"
     dirstt = {
         "train": {
-            "image": "D:\\Data\\brains\\train\\image_crops",
-            "label": "D:\\Data\\brains\\train\\label_crops",
+            "image": root + "\\train\\image_crops",
+            "label": root + "\\train\\label_crops",
             # "shuffle_rate": 0.40
         },
         "val": {
-            "image": "D:\\Data\\brains\\train\\image_crops",
-            "label": "D:\\Data\\brains\\train\\label_crops",
-
+            "image": root + "\\train\\image_crops",
+            "label": root + "\\train\\label_crops",
             "max_amount": 6
-        },
-        # "vis": {
-        #     "image": "D:\\gkw\\data\\vis\\image",
-        #     "label": "D:\\gkw\\data\\vis\\label",
-        #     "max_amount": 1
-        # },
-        # "ngcm_yc": {
-        #     "image": "D:\\gkw\\data\\misguide_data\\image",
-        #     "label": "D:\\gkw\\data\\misguide_data\\label",
-        # },
-        # "ngcm_y": {
-        #     "image": "D:\\gkw\\data\\misguide_data\\image",
-        #     "label": "D:\\gkw\\data\\misguide_data\\label",
-        #     "shuffle_rate": 0.40
-        # }
+        }
     }
-    # train_dir = {
-    #     "image": "D:\\gkw\\data\\misguide_data\\image",
-    #     "label": "D:\\gkw\\data\\misguide_data\\label_dce064"
-    # } 
-    # val_dir = {
-    #     "image": "D:\\gkw\\data\\misguide_data\\image",
-    #     "label": "D:\\gkw\\data\\misguide_data\\label"
-    # }
     all_lists = get_dsets(dirstt)
-
-    # print(all_lists)
-    with open("../data/msg_new_vessel.json", "w") as dlj:
-        json.dump(all_lists, dlj, indent=4)
-
+    target_file = "vessel_pre_cropped.json"
+    target_dir = "../data"
+    save_json(all_lists, target_file, target_dir)
 # get_a_set()

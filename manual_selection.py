@@ -28,7 +28,7 @@ else:  # Unix/Linux/macOS
 
 
 def read_file(file_path):
-    with open(file_path, 'r') as f:
+    with open(file_path, 'r', encoding="utf-8") as f:
         content = f.read()
     return content
 
@@ -43,7 +43,7 @@ def manual_selection(temp_dir, target_dir):
 
     for file in files:
         file_path = os.path.join(temp_dir, file)
-
+        print(f"File: {file}")
         # 读取文件内容
         content = read_file(file_path)
 

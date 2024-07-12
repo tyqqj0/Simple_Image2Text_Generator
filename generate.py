@@ -28,17 +28,20 @@ def get_mha_names(path: str) -> list:
     mha_names = []
     for file in files:
         if file.endswith('.mha'):
-            mha_names.append(file)
+            # 获取文件的绝对路径
+            absolute_path = os.path.abspath(os.path.join(path, file))
+            # absolute_path = file
+            mha_names.append(absolute_path)
     return mha_names
 
 
 def generate_image_text(files, target_dir, skip_existing=True):
     generator = ImageTextGenerator()
     for i, file in enumerate(files):
-        if i > 3:
-            break
+        # if i > 3:
+        #     break
         # 名称取.../*.mha
-        file_name = file.split('/')[-1]
+        file_name = file.split('\\')[-1]
         # 去掉后缀
         file_name = file_name.split('.')[0]
 
@@ -50,7 +53,7 @@ def generate_image_text(files, target_dir, skip_existing=True):
         elif os.path.exists(target_file):
             print(f"Overwriting existing file: {file_name}.")
 
-        print(f"Processing: {file}")
+        print(f"Processing: {file_name}")
         # 生成图像
         img = render_numpy(file)
         # 生成文本
@@ -58,7 +61,9 @@ def generate_image_text(files, target_dir, skip_existing=True):
         print(text)
 
         # 将生成的文本保存到目标文件夹中
-        with open(target_file, 'w') as f:
+        # with open(target_file, 'w') as f:
+        with open(target_file, 'w', encoding='utf-8') as f:
+            print(f"Writing to {target_file}")
             f.write(text)
 
 
@@ -73,7 +78,7 @@ def main():
 
     # 获取数据名称列表
     files = get_mha_names(path=image_dir)
-    print(files)
+    print('files', files)
 
     # 生成图像文本到目标文件夹
     generate_image_text(files, target_dir)

@@ -271,8 +271,8 @@ class ImageTextGenerator:
         image_url = self.image_host.upload_image(image_path)
         return self.generate_text(image_url)
 
-    def generate_text_from_numpy_array(self, array: np.array):
-        image_url = self.image_host.upload_numpy_array(array)
+    def generate_text_from_numpy_array(self, array: np.array, file_name=None):
+        image_url = self.image_host.upload_numpy_array(array, file_name=file_name)
         return self.generate_text(image_url)
 
 

@@ -3,7 +3,7 @@
 # @Author tyqqj
 # @File generate.py
 # @
-# @Aim 
+# @Aim
 
 import numpy as np
 import torch
@@ -57,7 +57,7 @@ def generate_image_text(files, target_dir, skip_existing=True):
         # 生成图像
         img = render_numpy(file)
         # 生成文本
-        text = generator.generate_text_from_numpy_array(img)
+        text = generator.generate_text_from_numpy_array(img, file_name)
         print(text)
 
         # 将生成的文本保存到目标文件夹中
@@ -72,12 +72,15 @@ def main():
     image_dir = 'D:/Data/brains/train/image_crops'
     # 目标文件夹路径
     target_dir = 'generated_texts'
+    qualified_dir = 'qualified_texts'
 
     # 创建目标文件夹(如果不存在)
     os.makedirs(target_dir, exist_ok=True)
 
-    # 获取数据名称列表
-    files = get_mha_names(path=image_dir)
+    # 获取数据名称列表, 已经在qualified_dir中的文件不再生成
+    target_files = get_mha_names(path=image_dir)
+    qualified_files = get_mha_names(path=qualified_dir)
+    files = [file for file in target_files if file not in qualified_files]
     print('files', files)
 
     # 生成图像文本到目标文件夹

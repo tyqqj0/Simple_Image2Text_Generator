@@ -77,10 +77,22 @@ def main():
     # 创建目标文件夹(如果不存在)
     os.makedirs(target_dir, exist_ok=True)
 
-    # 获取数据名称列表, 已经在qualified_dir中的文件不再生成
-    target_files = get_mha_names(path=image_dir)
-    qualified_files = get_mha_names(path=qualified_dir)
-    files = [file for file in target_files if file not in qualified_files]
+    # 获取数据名称列表, 已经在qualified_dir中的文件不再生成, 使用文件名称对比
+    target_files = get_mha_names(path=image_dir) # D:/Data/brains/train/image_crops/Normal002.mha
+    qualified_files = get_mha_names(path=qualified_dir) # qualified_texts/Normal002.txt
+    files = []
+    for target_file in target_files:
+        target_file_name = target_file.split('\\')[-1]
+        target_file_name = target_file_name.split('.')[0]
+        qualified = False
+        for qualified_file in qualified_files:
+            qualified_file_name = qualified_file.split('\\')[-1]
+            qualified_file_name = qualified_file_name.split('.')[0]
+            if target_file_name == qualified_file_name:
+                qualified = True
+                break
+        if not qualified:
+            files.append(target_file)
     print('files', files)
 
     # 生成图像文本到目标文件夹

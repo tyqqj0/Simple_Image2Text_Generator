@@ -70,6 +70,26 @@ def load_data_dicts(data_path):
 
     return data_dicts
 
+def add_additional_metadata(image):
+    # 添加额外的元数据
+    image_meta = image.meta.copy()
+    # ElementSpacing
+
+    image_meta["ElementSpacing"] = [1.0, 1.0, 1.0]
+    # Offset
+    image_meta["Offset"] = [0.0, 0.0, 0.0]
+    # TransformMatrix
+    image_meta["TransformMatrix"] = np.eye(3)
+
+    # 写回
+    image = monai.data.MetaTensor(image, meta=image_meta)
+
+    print("after:", image.meta)
+
+    return image
+
+
+
 
 def fix_metadata(image, label):
     # 修复元数据, 使得元数据中的空间信息与图像数据匹配
@@ -179,6 +199,7 @@ def create_dataset(data_dir, num_crops_per_image, output_dirs, max_num=-1):
 
             # 修复元数据
             cropped_dict["image"], cropped_dict["label"] = fix_metadata(cropped_dict["image"], cropped_dict["label"])
+            cropped_dict["image"] = add_additional_metadata(cropped_dict["image"])
 
             # 在裁剪后的图像和标签的元数据中添加裁剪编号
             cropped_dict["image"].meta["crop_number"] = j

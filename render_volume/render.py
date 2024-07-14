@@ -46,6 +46,9 @@ def fetch_mra_volume() -> vr.volume.Volume:
         return vr.io.read_nifti(mra_file)
 
 
+
+
+
 def get_mha_volume(path) -> vr.volume.Volume:
     #path = "D:/Data/brains/train/image/Normal002.mha"
     return vr.io.read_mha(path)

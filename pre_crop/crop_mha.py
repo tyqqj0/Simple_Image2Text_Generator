@@ -71,6 +71,48 @@ def load_data_dicts(data_path):
     return data_dicts
 
 
+def fix_metadata(image, label):
+    # 修复元数据, 使得元数据中的空间信息与图像数据匹配
+    image_meta = image.meta.copy()
+    label_meta = label.meta.copy()
+
+    # 打印原始数据的大小
+    # print("Original image shape:", image.shape)
+    # print("Original image meta:", image_meta)
+
+    # 更新元数据中的空间信息
+    image_meta["spatial_shape"] = [image.shape[-3], image.shape[-2], image.shape[-1]]
+    label_meta["spatial_shape"] = [label.shape[-3], label.shape[-2], label.shape[-1]]
+
+    # 更新元数据中的原点信息
+
+
+    image_meta["affine"] = image_meta["original_affine"]
+    label_meta["affine"] = label_meta["original_affine"]
+
+    # 去掉原始元数据中的空间信息
+    # image_meta.pop("original_affine", None)
+    # label_meta.pop("original_affine", None)
+    # image_meta.pop("affine", None)
+    # label_meta.pop("affine", None)
+    image_meta.pop("crop_center", None)
+    label_meta.pop("crop_center", None)
+
+
+    # 打印修复后的数据大小
+    # print("Fixed image shape:", image.shape)
+
+    # print("Fixed image meta:", image_meta)
+
+    # 更新图像和标签的元数据
+    image = monai.data.MetaTensor(image, meta=image_meta)
+    label = monai.data.MetaTensor(label, meta=label_meta)
+
+    # print(image)
+
+    return image, label
+
+
 def create_dataset(data_dir, num_crops_per_image, output_dirs, max_num=-1):
     # 定义transforms
     transforms = Compose([
@@ -130,14 +172,13 @@ def create_dataset(data_dir, num_crops_per_image, output_dirs, max_num=-1):
             # # 复制原始元数据中的信息
             # image_meta = cropped_dict["image"].meta.copy()
             # label_meta = cropped_dict["label"].meta.copy()
-            #
-            # print(image_meta)
             # #
-            # # 更新裁剪后的图像和标签的元数据中的空间信息
-            # affine = np.eye(4)
-            # affine[:3, :3] = np.diag([1.0, 1.0, 1.0])  # 假设体素大小为 1x1x1
-            # cropped_dict["image"] = monai.data.MetaTensor(cropped_image, affine=affine, meta=image_meta)
-            # cropped_dict["label"] = monai.data.MetaTensor(cropped_label, affine=affine, meta=label_meta)
+            # print("before:", image_meta)
+
+            # #
+
+            # 修复元数据
+            cropped_dict["image"], cropped_dict["label"] = fix_metadata(cropped_dict["image"], cropped_dict["label"])
 
             # 在裁剪后的图像和标签的元数据中添加裁剪编号
             cropped_dict["image"].meta["crop_number"] = j
@@ -147,6 +188,15 @@ def create_dataset(data_dir, num_crops_per_image, output_dirs, max_num=-1):
             cropped_dict["image"].meta["patch_index"] = j
             cropped_dict["label"].meta["patch_index"] = j
 
+            # # 使用CropForegroundd自动裁剪前景区域并更新元数据
+            # crop_foreground = CropForegroundd(keys=["image", "label"], source_key="image")
+            # cropped_dict = crop_foreground(cropped_dict)
+
+            # image_meta = cropped_dict["image"].meta.copy()
+            # label_meta = cropped_dict["label"].meta.copy()
+            # #
+            # print("after:", image_meta)
+
             # 保存裁剪后的图像
             image_saver(cropped_dict["image"])
 
@@ -154,10 +204,14 @@ def create_dataset(data_dir, num_crops_per_image, output_dirs, max_num=-1):
             label_saver(cropped_dict["label"])
 
 
-# 使用示例
-# data_dir = "D:/Data/brains/train/"
-data_dir = "D:/gkw/data/data_json/vessel.json"
-output_dir = ["D:/Data/brains/train/image_crops", "D:/Data/brains/train/label_crops"]
-num_crops_per_image = 1
 
-create_dataset(data_dir, num_crops_per_image, output_dir, 1)
+
+if __name__ == "__main__":
+
+    # 使用示例
+    data_dir = "D:/Data/brains/train/"
+    # data_dir = "D:/gkw/data/data_json/vessel.json"
+    output_dir = ["D:/Data/brains/train/image_crops", "D:/Data/brains/train/label_crops"]
+    num_crops_per_image = 1
+
+    create_dataset(data_dir, num_crops_per_image, output_dir)

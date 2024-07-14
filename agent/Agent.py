@@ -206,6 +206,8 @@ class AliyunOSSImageHost:
         if file_name is None:
             timett = str(int(time.time()))
             file_name = f"numpy_array_{timett}.png"
+        elif ".png" not in file_name:
+            file_name = file_name + ".png"
         # 确保数组是二维的
         if array.ndim != 2:
             raise ValueError("Only 2D arrays are supported.")
@@ -293,6 +295,7 @@ if __name__ == '__main__':
         # img_file = Image.open(img_file)
         img = AliyunOSSImageHost().upload_image(img_file)
         print(img)
+        print("Generating")
         # img = "https://image-tyqqj.oss-cn-beijing.aliyuncs.com/Snipaste_2024-06-09_13-27-16.png?Expires=1718367654&OSSAccessKeyId=TMP.3KgG7Vp9exHntsexvhEDtpxRcQVfMEyhnpsyMZoigRnRAP4UJftUF81mHnWxgpC8r4yNNjeKG94Y2Whs6zsKeyVKjaZBVc&Signature=dBuMs5ZPrrXfv0MbB246G65Hwss%3D"
         text = text1 = "请评价一下这张脑部血管成像的质量, 你认为这张成像的质量如何?"
         response = client.chat.completions.create(

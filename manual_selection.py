@@ -73,6 +73,8 @@ def manual_selection(temp_dir, target_dir):
                 # break
 
         print("-" * 50)
+        # 清空输入缓冲区
+        keyboard.read_event()
     input("Press Enter to continue...")
 
 

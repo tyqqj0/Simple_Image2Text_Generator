@@ -160,4 +160,4 @@ data_dir = "D:/gkw/data/data_json/vessel.json"
 output_dir = ["D:/Data/brains/train/image_crops", "D:/Data/brains/train/label_crops"]
 num_crops_per_image = 1
 
-create_dataset(data_dir, num_crops_per_image, output_dir)
+create_dataset(data_dir, num_crops_per_image, output_dir, 1)

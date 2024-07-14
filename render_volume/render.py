@@ -90,8 +90,9 @@ def render_numpy(path: str):
 
 
 def main():
-    volume = get_mha_volume()
-    ret = vr.render(volume, mode=vr.rendering.mode.MIP(), face=Coronal.RIGHT, spacing=1.0)
+    volume = get_mha_volume("D://Data//brains//train//image_crops//Normal003_image_2.mha")
+    # ret = vr.render(volume, mode=vr.rendering.mode.MIP(), face=Coronal.RIGHT, spacing=1.0)
+    ret = vr.render(volume)
     save_result(ret, f"result.png")
 
 

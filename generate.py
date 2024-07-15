@@ -72,7 +72,7 @@ def generate_image_text(files, target_dir, skip_existing=True):
         img = render_numpy(file)
         # 生成文本
         text = generator.generate_text_from_numpy_array(img, file_name)
-        print(text)
+        x = print(text)
 
         # 将生成的文本保存到目标文件夹中
         # with open(target_file, 'w') as f:

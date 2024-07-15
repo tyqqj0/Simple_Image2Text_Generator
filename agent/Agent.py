@@ -176,12 +176,25 @@ class AliyunOSSImageHost:
         if endpoint is None:
             endpoint = tendpoint
 
+        self.start_time = time.time()
+
         self.auth = oss2.Auth(access_key_id, access_key_secret)
         self.bucket = oss2.Bucket(self.auth, endpoint, bucket_name)
 
-    def upload_image(self, image_path):
+    def upload_image(self, image_path, folder=None):
         print("Uploading image to Aliyun OSS...")
         file_key = image_path.split('/')[-1]
+        if folder is not None:
+            if isinstance(folder, str):
+                if not folder.endswith("/"):
+                    folder += "/"
+                file_key = folder + file_key
+            elif isinstance(folder, bool):
+                if folder:
+                    folder = str(self.start_time).split(".")[0]
+                    file_key = folder + "/" + file_key
+            else:
+                raise ValueError("Invalid folder parameter. Expected a string or a boolean")
         result = self.bucket.put_object_from_file(file_key, image_path)
         # 假设原始的endpoint可能包含'http://'
         if 'http://' in self.bucket.endpoint:
@@ -190,12 +203,14 @@ class AliyunOSSImageHost:
         # 或者如果包含'https://'
         elif 'https://' in self.bucket.endpoint:
             bucket_endpoint = self.bucket.endpoint.replace('https://', '')
+
+
         if result.status == 200:
             return f"http://{self.bucket.bucket_name}.{bucket_endpoint}/{file_key}"
         else:
             return None
 
-    def upload_numpy_array(self, array: np.array, file_name=None):
+    def upload_numpy_array(self, array: np.array, file_name=None, folder=None):
         """
         将NumPy数组转换为图像并上传到OSS。
         :param array: NumPy二维数组
@@ -211,6 +226,19 @@ class AliyunOSSImageHost:
         # 确保数组是二维的
         if array.ndim != 2:
             raise ValueError("Only 2D arrays are supported.")
+
+        if folder is not None:
+            if isinstance(folder, str):
+                if not folder.endswith("/"):
+                    folder += "/"
+                file_name = folder + file_name
+            elif isinstance(folder, bool):
+                if folder:
+                    folder = str(self.start_time).split(".")[0]
+                    file_name = folder + "/" + file_name
+            else:
+                raise ValueError("Invalid folder parameter. Expected a string or a boolean")
+
 
         # 将NumPy数组转换为Pillow图像
         image = Image.fromarray(np.uint8(array))
@@ -270,11 +298,11 @@ class ImageTextGenerator:
         return None
 
     def generate_text_from_image(self, image_path):
-        image_url = self.image_host.upload_image(image_path)
+        image_url = self.image_host.upload_image(image_path, folder=True)
         return self.generate_text(image_url)
 
     def generate_text_from_numpy_array(self, array: np.array, file_name=None):
-        image_url = self.image_host.upload_numpy_array(array, file_name=file_name)
+        image_url = self.image_host.upload_numpy_array(array, file_name=file_name, folder=True)
         return self.generate_text(image_url)
 
 

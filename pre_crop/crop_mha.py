@@ -70,11 +70,32 @@ def load_data_dicts(data_path):
 
     return data_dicts
 
+
+# {'ObjectType': 'Image', 'NDims': 3, 'CompressedData': False, 'BinaryData': True, 'BinaryDataByteOrderMSB': False, 'Offset': array([0., 0., 0.]), 'TransformMatrix': array([[1., 0., 0.],
+#        [0., 1., 0.],
+#        [0., 0., 1.]]), 'CenterOfRotation': array([0., 0., 0.]), 'AnatomicalOrientation': 'RAI', 'ElementSpacing': array([1., 1., 1.]), 'DimSize': array([ 96, 224, 224]), 'ElementType': <class 'numpy.uint16'>})
 def add_additional_metadata(image):
     # 添加额外的元数据
     image_meta = image.meta.copy()
+    # ObjectType
+    image_meta["ObjectType"] = "Image"
+    # NDims
+    image_meta["NDims"] = 3
+    # CompressedData
+    image_meta["CompressedData"] = False
+    # BinaryData
+    image_meta["BinaryData"] = True
+    # BinaryDataByteOrderMSB
+    image_meta["BinaryDataByteOrderMSB"] = False
+    # CenterOfRotation
+    image_meta["CenterOfRotation"] = [0.0, 0.0, 0.0]
+    # AnatomicalOrientation
+    image_meta["AnatomicalOrientation"] = "RAI"
+    # DimSize
+    image_meta["DimSize"] = image.shape[-3:]
+    # ElementType
+    image_meta["ElementType"] = np.uint16
     # ElementSpacing
-
     image_meta["ElementSpacing"] = [1.0, 1.0, 1.0]
     # Offset
     image_meta["Offset"] = [0.0, 0.0, 0.0]
@@ -131,6 +152,15 @@ def fix_metadata(image, label):
     # print(image)
 
     return image, label
+
+def data_to_np(data: monai.data.MetaTensor)-> monai.data.MetaTensor:
+    # 将MetaTensor的数据部分的类型从torch转换为numpy.uint16, 以便保存为mha文件
+    data_np = data.detach().cpu().numpy() * 65535
+    data_np = data_np.astype(np.uint16)
+    data = monai.data.MetaTensor(data_np, meta=data.meta)
+    return data
+
+
 
 
 def create_dataset(data_dir, num_crops_per_image, output_dirs, max_num=-1):
@@ -200,6 +230,11 @@ def create_dataset(data_dir, num_crops_per_image, output_dirs, max_num=-1):
             # 修复元数据
             cropped_dict["image"], cropped_dict["label"] = fix_metadata(cropped_dict["image"], cropped_dict["label"])
             cropped_dict["image"] = add_additional_metadata(cropped_dict["image"])
+
+            # 将MetaTensor的数据类型从torch转换为numpy.uint16
+            cropped_dict["image"] = data_to_np(cropped_dict["image"])
+            cropped_dict["label"] = data_to_np(cropped_dict["label"])
+
 
             # 在裁剪后的图像和标签的元数据中添加裁剪编号
             cropped_dict["image"].meta["crop_number"] = j

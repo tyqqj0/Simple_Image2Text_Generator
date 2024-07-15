@@ -155,12 +155,10 @@ def fix_metadata(image, label):
 
 def data_to_np(data: monai.data.MetaTensor)-> monai.data.MetaTensor:
     # 将MetaTensor的数据部分的类型从torch转换为numpy.uint16, 以便保存为mha文件
-    data_np = data.detach().cpu().numpy() * 65535
-    data_np = data_np.astype(np.uint16)
+    data_np = data.detach().cpu().numpy() * 255
+    data_np = data_np.astype(np.int16)
     data = monai.data.MetaTensor(data_np, meta=data.meta)
     return data
-
-
 
 
 def create_dataset(data_dir, num_crops_per_image, output_dirs, max_num=-1):
@@ -211,6 +209,7 @@ def create_dataset(data_dir, num_crops_per_image, output_dirs, max_num=-1):
                 image_key="image",
                 image_threshold=0,
             )
+            # print(image_dict["image"].meta)
             cropped_dict = cropper(image_dict)
 
             cropped_dict = cropped_dict[0]
@@ -234,7 +233,6 @@ def create_dataset(data_dir, num_crops_per_image, output_dirs, max_num=-1):
             # 将MetaTensor的数据类型从torch转换为numpy.uint16
             cropped_dict["image"] = data_to_np(cropped_dict["image"])
             cropped_dict["label"] = data_to_np(cropped_dict["label"])
-
 
             # 在裁剪后的图像和标签的元数据中添加裁剪编号
             cropped_dict["image"].meta["crop_number"] = j
@@ -265,9 +263,9 @@ def create_dataset(data_dir, num_crops_per_image, output_dirs, max_num=-1):
 if __name__ == "__main__":
 
     # 使用示例
-    data_dir = "D:/Data/brains/train/"
-    # data_dir = "D:/gkw/data/data_json/vessel.json"
+    # data_dir = "D:/Data/brains/train/"
+    data_dir = "D:/gkw/data/data_json/vessel.json"
     output_dir = ["D:/Data/brains/train/image_crops", "D:/Data/brains/train/label_crops"]
-    num_crops_per_image = 1
+    num_crops_per_image = 10
 
-    create_dataset(data_dir, num_crops_per_image, output_dir)
+    create_dataset(data_dir, num_crops_per_image, output_dir, -1)

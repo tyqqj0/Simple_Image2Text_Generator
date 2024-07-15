@@ -3,8 +3,8 @@
 # @Author tyqqj
 # @File render.py
 # @
-# @Aim 
-
+# @Aim
+import metaimageio
 import numpy as np
 import torch
 from PIL import Image
@@ -93,9 +93,14 @@ def render_numpy(path: str):
 
 
 def main():
-    volume = get_mha_volume("D://Data//brains//train//image_crops//Normal003_image_2.mha")
-    # ret = vr.render(volume, mode=vr.rendering.mode.MIP(), face=Coronal.RIGHT, spacing=1.0)
-    ret = vr.render(volume)
+    croped = "D://Data//brains//train//image_crops//Normal002_image_1.mha"
+    origin = "D://gkw//data//misguide_data//image//Normal002.mha"
+    image = croped
+    volume = get_mha_volume(image)
+    print(metaimageio.read(image))
+    print(volume.data)
+    ret = vr.render(volume, mode=vr.rendering.mode.MIP(), face=Coronal.RIGHT, spacing=1.0)
+    # ret = vr.render(volume)
     save_result(ret, f"result.png")
 
 

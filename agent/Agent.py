@@ -177,7 +177,8 @@ class AliyunOSSImageHost:
         if endpoint is None:
             endpoint = tendpoint
 
-        self.start_time = time.time()
+        # 记录开始时间的文本
+        self.start_time = time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime())
 
         self.auth = oss2.Auth(access_key_id, access_key_secret)
         self.bucket = oss2.Bucket(self.auth, endpoint, bucket_name)
@@ -192,7 +193,7 @@ class AliyunOSSImageHost:
                 file_key = folder + file_key
             elif isinstance(folder, bool):
                 if folder:
-                    folder = str(self.start_time).split(".")[0]
+                    folder = self.start_time
                     file_key = folder + "/" + file_key
             else:
                 raise ValueError("Invalid folder parameter. Expected a string or a boolean")
@@ -235,7 +236,7 @@ class AliyunOSSImageHost:
                 file_name = folder + file_name
             elif isinstance(folder, bool):
                 if folder:
-                    folder = str(self.start_time).split(".")[0]
+                    folder = self.start_time
                     file_name = folder + "/" + file_name
             else:
                 raise ValueError("Invalid folder parameter. Expected a string or a boolean")
